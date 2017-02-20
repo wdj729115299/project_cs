@@ -4,6 +4,10 @@
  */
  
 #include <stdlib.h>
+#include <stdio.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <string.h>
 #include "client.h"
 
 int main(int argc, char *argv[])
@@ -14,6 +18,18 @@ int main(int argc, char *argv[])
     struct sockaddr_in addr_in;
     char read_buf[READ_BUF_LEN];
     char write_buf[WRITE_BUF_LEN];
+    unsigned long server_ip;
+
+    if(argc < 2){
+        printf("please input server ip address.");
+        return -1;
+    }
+   
+    server_ip = inet_addr(argv[1]);
+    if(server_ip == INADDR_NONE){
+        printf("ip address error.");
+        return -1;
+    }
 
     memset(read_buf, 0, READ_BUF_LEN);
     memset(write_buf, 0, WRITE_BUF_LEN);
@@ -28,10 +44,10 @@ int main(int argc, char *argv[])
     /*step2:connect to server*/
     addr_in.sin_family = AF_INET;
     addr_in.sin_port = htons(CONNECT_PORT);
-    addr_in.sin_addr.s_addr = htonl();
+    addr_in.sin_addr.s_addr = server_ip;
     addr_len = sizeof(struct sockaddr_in);
 
-    ret = connect(sd, (struct sockaddr*)&sockaddr, addr_len);
+    ret = connect(sd, (struct sockaddr*)&addr_in, addr_len);
     if(ret < 0){
         printf("connect to server failed.");   
         return ret;
