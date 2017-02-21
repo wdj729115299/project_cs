@@ -30,10 +30,7 @@ int main(int argc, char *argv[])
         printf("ip address error.");
         return -1;
     }
-
-    memset(read_buf, 0, READ_BUF_LEN);
-    memset(write_buf, 0, WRITE_BUF_LEN);
-
+    
     /*step1: create socket*/
     sd = socket(AF_INET, SOCK_STREAM, 0);
     if(sd < 0){
@@ -54,7 +51,11 @@ int main(int argc, char *argv[])
     }
 
     while(1){
-        scanf("%s", write_buf);
+        
+        memset(read_buf, 0, READ_BUF_LEN);
+        memset(write_buf, 0, WRITE_BUF_LEN);
+        
+        fgets(write_buf, WRITE_BUF_LEN, stdin);
         ret = send(sd, write_buf, strlen(write_buf), 0);
         if(ret < 0){
             printf("send '%s' failed.", write_buf);
@@ -64,8 +65,5 @@ int main(int argc, char *argv[])
         if(ret > 0){
             printf("%s", read_buf);
         }
-
-        memset(read_buf, 0, READ_BUF_LEN);
-        memset(write_buf, 0, WRITE_BUF_LEN);
     }
 }

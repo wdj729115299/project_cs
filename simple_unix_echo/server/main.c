@@ -38,9 +38,6 @@ int main(int argc, char *argv[])
         printf("listen socket failed.");
         return -1;
     }
-
-    memset(read_buf, 0, READ_BUF_LEN);
-    memset(write_buf, 0, WRITE_BUF_LEN);
     
     /*step4: accept*/
     addr_len = sizeof(client_addr);
@@ -48,11 +45,17 @@ int main(int argc, char *argv[])
         client_sd = accept(server_sd, (struct sockaddr*)&client_addr, &addr_len);
         if(client_sd > 0){
             while(1){
+                memset(read_buf, 0, READ_BUF_LEN);
+                memset(write_buf, 0, WRITE_BUF_LEN);
+                
                 data_len = recv(client_sd, read_buf, READ_BUF_LEN, 0);
                 if(data_len > 0){
-                    printf("%s\n", read_buf);
+                    printf("%s", read_buf);
+                }else{
+                    close(client_sd);
+                    break;
                 }
-
+                
                 send(client_sd, read_buf, strlen(read_buf), 0);
             }
         }
