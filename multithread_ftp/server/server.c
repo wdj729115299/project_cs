@@ -20,6 +20,8 @@ static const struct option long_options[] = {
 };
 
 static const char *short_options = "p:b:r:w:tf";
+unsigned int g_read_buf_len;
+unsigned int g_write_buf_len;
 
 static int global_data_default_init()
 {
@@ -95,7 +97,7 @@ static void server_loop(int server_sd)
     pid_t pid;
     
     socklen_t addr_len = sizeof(client_addr);
-    
+
     while(1){
         client_sd = accept(server_sd, (struct sockaddr*)&client_addr, &addr_len);
         if(client_sd > 0){
@@ -132,42 +134,25 @@ static void get_server_options(int argc, char *argv[],
                 break;
             case 't':
                 g_work_mode = MULTI_THREAD_MODE;
+                break;
             default:
                 break;
         }
     }
 }
 
-static void global_memory_init()
-{
-    read_buf = (char*)malloc(sizeof(char) * g_read_buf_len);
-    if(read_buf == NULL){
-        printf("no memory for read_buf");
-        exit(0);
-    }
-    memset(read_buf, 0, g_read_buf_len);
-
-    write_buf = (char*)malloc(sizeof(char) * g_write_buf_len);
-    if(write_buf == NULL){
-        printf("no memory for write_buf");
-        exit(0);
-    }
-}
-
 int main(int argc, char *argv[])
 {
     global_data_default_init();
-    
-    get_server_options(argc, argv, short_options, long_options);
 
-    global_memory_init();
+    get_server_options(argc, argv, short_options, long_options);
     
     int server_sd = socket_init();
     if(server_sd < 0){
         printf("init socket failed.");
         return -1;
     }
-
+    
     server_loop(server_sd);
 }
 
