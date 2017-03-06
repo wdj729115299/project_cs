@@ -1,11 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 #include "ftp_server.h"
 
-static char *g_ftp_read_buf;
-static char *g_ftp_write_buf;
-
+/*
 static void ftp_data_init(void)
 {
     g_ftp_read_buf = (char *)malloc(sizeof(char) * g_read_buf_len);
@@ -20,14 +19,17 @@ static void ftp_data_init(void)
         exit(0);
     }
 }
+*/
 
 void *ftp_main_loop(void *arg)
 {
     int data_len;
     FILE *fp;
     int ret;
+    char g_ftp_read_buf[1024];
+    char g_ftp_write_buf[1024];
     
-    ftp_data_init();
+    //ftp_data_init();
     
     int client_sd = *((int*) arg);
     while(1){
@@ -38,13 +40,14 @@ void *ftp_main_loop(void *arg)
         if(data_len > 0){
            fp = fopen(g_ftp_read_buf, "r");
            if(fp){
-                printf("%s", g_ftp_read_buf);
+                printf("%s %d", g_ftp_read_buf, strlen(g_ftp_read_buf));
                 strcpy(g_ftp_write_buf, "sure,you can get it.\n");
            }else{
+                printf("%d %s ",  strlen(g_ftp_read_buf), g_ftp_read_buf);
                 strcpy(g_ftp_write_buf, "sorry,you can't get it.\n");
+                perror("open failed");
            }
            data_len = send(client_sd, g_ftp_write_buf, strlen(g_ftp_write_buf), 0);
-           printf("%d\n", data_len);
         }
     }
 }
