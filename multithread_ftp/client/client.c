@@ -65,13 +65,13 @@ int main(int argc, char *argv[])
         if(!fp){
             perror("open failed");
         }
-       while(!feof(fp)){
-            length = recv(sd, buf, SEND_BUF_LEN - 1, 0);
+       while((length = recv(sd, buf, SEND_BUF_LEN - 1, 0)) > 0){
+            fwrite(buf, sizeof(char), length, fp);
             total_bytes += length;
             printf("recv %lu bytes\n", total_bytes);
-            fwrite(buf, sizeof(char), length, fp);
             memset(buf, 0, SEND_BUF_LEN);
        }
        fclose(fp);
     }
+    close(sd);
 }

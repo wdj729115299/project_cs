@@ -27,3 +27,9 @@
 3.多线程unix echo 程序。(2-18)
 4.完善echo程序。(2-19)
 
+需要实现四个目标
+1.simple ftp,多线程 
+2.simple http select
+3.simple redis poll/epoll
+4.内核实现vpn/dpi
+
