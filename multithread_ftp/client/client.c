@@ -13,7 +13,11 @@ int main(int argc, char *argv[])
     struct sockaddr_in addr_in;
     char read_buf[READ_BUF_LEN];
     char write_buf[WRITE_BUF_LEN];
+    char buf[SEND_BUF_LEN];
+    int length;
     unsigned long server_ip;
+    FILE *fp;
+    unsigned long total_bytes = 0;
 
     if(argc < 2){
         printf("please input server ip address.");
@@ -29,7 +33,6 @@ int main(int argc, char *argv[])
     /*step1: create socket*/
     sd = socket(AF_INET, SOCK_STREAM, 0);
     if(sd < 0){
-
         printf("create socket failed.");
         return;
     }
@@ -50,6 +53,7 @@ int main(int argc, char *argv[])
         
         memset(read_buf, 0, READ_BUF_LEN);
         memset(write_buf, 0, WRITE_BUF_LEN);
+        memset(buf, 0, SEND_BUF_LEN);
         
         fgets(write_buf, WRITE_BUF_LEN, stdin);
         ret = send(sd, write_buf, strlen(write_buf), 0);
@@ -57,9 +61,17 @@ int main(int argc, char *argv[])
             printf("send '%s' failed.", write_buf);
         }
 
-        ret = recv(sd, read_buf, READ_BUF_LEN, 0);
-        if(ret > 0){
-            printf("%s", read_buf);
+        fp = fopen("/home/bbb", "wb+");
+        if(!fp){
+            perror("open failed");
         }
+       while(!feof(fp)){
+            length = recv(sd, buf, SEND_BUF_LEN - 1, 0);
+            total_bytes += length;
+            printf("recv %lu bytes\n", total_bytes);
+            fwrite(buf, sizeof(char), length, fp);
+            memset(buf, 0, SEND_BUF_LEN);
+       }
+       fclose(fp);
     }
 }

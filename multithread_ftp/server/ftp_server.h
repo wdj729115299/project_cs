@@ -1,6 +1,8 @@
 #ifndef _FTP_SERVER_H
 #define _FTP_SERVER_H
 
+#define SEND_BUF_LEN    4096 
+
 extern void *ftp_main_loop(void *arg);
 
 extern unsigned int g_read_buf_len;
