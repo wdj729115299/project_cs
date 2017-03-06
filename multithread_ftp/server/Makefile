@@ -7,7 +7,7 @@ all:server
 .PHONY:all
 
 target = server
-objects = server.o ftp_server.o
+objects = server.o
 
 
 $(target):$(objects)
@@ -20,3 +20,4 @@ $(objects):%.o:%.c
 	
 clean:
 	rm -rf *.o $(target) $(target)
+
