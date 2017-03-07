@@ -29,6 +29,11 @@
 
 需要实现四个目标
 1.simple ftp,多线程 
+  simple ftp-v2.0目标：
+  					1.维护一个连接池
+  					2.模块分离
+  					3.面向大并发的处理
+  					4.采用多进程
 2.simple http select
 3.simple redis poll/epoll
 4.内核实现vpn/dpi
