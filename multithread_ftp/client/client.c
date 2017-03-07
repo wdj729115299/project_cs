@@ -3,7 +3,34 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
+#include <errno.h>
 #include "client.h"
+
+static int recvn(int sd, void *buf, size_t count)
+{
+    int left = count;
+    char *ptr = (char *)buf;
+    while(left > 0){
+        printf("hi,stuck-1.\n");
+        int n = recv(sd, ptr, left, 0);
+        printf("hi,stuck.\n");
+        if( n < 0 ){
+            if(errno == EINTR){
+                printf("recvn eintr.\n");
+                continue;
+            }
+            return -1;
+        }else if( n == 0 ){     //EOF
+            printf("hi,stuck2.\n");
+            return count -left;
+        }else{
+            printf("hi,stuck3.\n");
+            left -= n;
+            ptr += n;
+        }
+    }
+    return count;
+}
 
 int main(int argc, char *argv[])
 {
@@ -13,7 +40,7 @@ int main(int argc, char *argv[])
     struct sockaddr_in addr_in;
     char read_buf[READ_BUF_LEN];
     char write_buf[WRITE_BUF_LEN];
-    char buf[SEND_BUF_LEN];
+    struct packet pkt;
     int length;
     unsigned long server_ip;
     FILE *fp;
@@ -48,30 +75,44 @@ int main(int argc, char *argv[])
         printf("connect to server failed.");   
         return ret;
     }
-
-    while(1){
-        
-        memset(read_buf, 0, READ_BUF_LEN);
-        memset(write_buf, 0, WRITE_BUF_LEN);
-        memset(buf, 0, SEND_BUF_LEN);
-        
-        fgets(write_buf, WRITE_BUF_LEN, stdin);
-        ret = send(sd, write_buf, strlen(write_buf), 0);
-        if(ret < 0){
-            printf("send '%s' failed.", write_buf);
-        }
-
-        fp = fopen("/home/bbb", "wb+");
-        if(!fp){
-            perror("open failed");
-        }
-       while((length = recv(sd, buf, SEND_BUF_LEN - 1, 0)) > 0){
-            fwrite(buf, sizeof(char), length, fp);
-            total_bytes += length;
-            printf("recv %lu bytes\n", total_bytes);
-            memset(buf, 0, SEND_BUF_LEN);
-       }
-       fclose(fp);
+    
+    memset(read_buf, 0, READ_BUF_LEN);
+    memset(write_buf, 0, WRITE_BUF_LEN);
+    memset(&pkt, 0, sizeof(pkt));
+    
+    fgets(write_buf, WRITE_BUF_LEN, stdin);
+    ret = send(sd, write_buf, strlen(write_buf), 0);
+    if(ret < 0){
+        printf("send '%s' failed.", write_buf);
     }
-    close(sd);
+
+    fp = fopen("/home/bbb", "wb+");
+    if(!fp){
+        perror("open failed");
+    }
+   while(1){
+        ret = recvn(sd, &pkt.msg_len, sizeof(pkt.msg_len));
+        printf("ret = %d\n", ret);
+        if(ret <= 0){
+            break;
+        }
+
+        pkt.msg_len = ntohl(pkt.msg_len);
+
+        ret = recvn(sd, pkt.data, pkt.msg_len);
+        if(ret <= 0){
+            break;
+        }
+        
+        if(fwrite(pkt.data, sizeof(char), pkt.msg_len, fp) < pkt.msg_len){
+            printf("write file failed.\n");
+            break;
+        }
+        total_bytes += pkt.msg_len;
+        printf("recv %lu bytes\n", total_bytes);
+        memset(&pkt, 0, sizeof(pkt));
+   }
+   fclose(fp);
+   
+   close(sd);
 }

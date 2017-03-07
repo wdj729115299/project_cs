@@ -4,22 +4,27 @@
 #include <errno.h>
 #include "ftp_server.h"
 
-/*
-static void ftp_data_init(void)
+static int sendn(int sd, void *buf, size_t count)
 {
-    g_ftp_read_buf = (char *)malloc(sizeof(char) * g_read_buf_len);
-    if(g_ftp_read_buf == NULL){
-        printf("no memory for read_buf");
-        exit(0);
+    int left = count;
+    char *ptr = (char*)buf;
+
+    while(left > 0){
+        int n = send(sd, buf, left, 0);
+        if( n < 0 ){
+            if(errno == EINTR)
+                continue;
+            return -1;
+        }else if( n == 0){
+            continue;
+        }else{
+            left -= n;
+            ptr += n;
+        }
     }
 
-    g_ftp_write_buf = (char *)malloc(sizeof(char) * g_write_buf_len);
-    if(g_ftp_write_buf == NULL){
-        printf("no memory for write buf");
-        exit(0);
-    }
+    return count;
 }
-*/
 
 void *ftp_main_loop(void *arg)
 {
@@ -29,16 +34,14 @@ void *ftp_main_loop(void *arg)
     int ret;
     char g_ftp_read_buf[1024];
     char g_ftp_write_buf[1024];
-    char buf[SEND_BUF_LEN];
     unsigned long total_bytes = 0;
-    
-    //ftp_data_init();
+    struct packet pkt;
     
     int client_sd = *((int*) arg);
     while(1){
         memset(g_ftp_read_buf, 0, g_read_buf_len);
         memset(g_ftp_write_buf, 0, g_write_buf_len);
-        memset(buf, 0, SEND_BUF_LEN);
+        memset(&pkt, 0, sizeof(pkt));
             
         data_len = recv(client_sd, g_ftp_read_buf, g_read_buf_len, 0);
         if(data_len > 0){
@@ -56,14 +59,24 @@ void *ftp_main_loop(void *arg)
                 perror("open failed");
            }
            while( !feof(fp)){
-                length = fread(buf, sizeof(char), SEND_BUF_LEN - 1, fp);
-                send(client_sd, buf, length, 0);
+                length = fread(pkt.data, sizeof(char), sizeof(pkt.data), fp);
+                if(length < 0){
+                    printf("fread failed.");
+                    break;
+                }
+                if(length == 0)
+                    continue;
+                pkt.msg_len = htonl(length);
+                if(sendn(client_sd, (void*)&pkt, length + 4) < 0){
+                    printf("send file failed.\n");
+                    break;
+                }
                 total_bytes += length;
                 printf("send %lu bytes\n", total_bytes);
-                memset(buf, 0, SEND_BUF_LEN);
+                memset(&pkt, 0, sizeof(struct packet));
            }
            fclose(fp);
+           close(client_sd);
         }
     }
-    close(client_sd);
 }

@@ -7,7 +7,7 @@ all:server
 .PHONY:all
 
 target = server
-objects = server.o
+objects = server.o ftp_server.o
 
 
 $(target):$(objects)
