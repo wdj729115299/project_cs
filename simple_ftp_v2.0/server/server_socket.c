@@ -104,8 +104,7 @@ int server_accept(int fd, int *connfd, struct sockaddr_in *addr, int timeout)
     if(ret == 0 ){
         return 0;
     }
-
 	*connfd = ret;
 
-	return 0;
+	return ret;
 }

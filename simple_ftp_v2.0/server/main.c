@@ -49,14 +49,17 @@ int main(int argc, char *argv[])
         if( ret < 0){
             exit(EXIT_FAILURE);
         }
+		printf("accept something.\n");
         pid = fork();
         if(pid < 0){
             printf("%s line %d %d: fork error\n", __FILE__, __LINE__, __FUNCTION__);
             exit(EXIT_FAILURE);
-        }else if(pid > 0){
+        }else if(pid > 0){		//父进程返回子进程ID
+        	//父进程关闭客户端的socket
             close(connfd);
-        }else{
-            printf("let's do something\n");
+        }else{					//子进程返回0
+        	//子进程关闭监听socket
+            close(listen_fd);
         }
 	}
 	
