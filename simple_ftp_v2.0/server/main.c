@@ -1,5 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <signal.h>
+#include <netinet/in.h>
+#include <string.h>
+#include "tunable.h"
 
 void handle_sigchld( int sig )
 {
@@ -21,7 +25,7 @@ int main(int argc, char *argv[])
 
 	//server_conf_init();
 
-	ret = server_socket_init(tunable_listen_address, tunable_listen_port, &liten_fd);
+	ret = server_socket_init(tunable_listen_address, tunable_listen_port, &listen_fd);
 	if( ret < 0){
 		fprintf(stderr, "server socket init failed");
 		exit(EXIT_FAILURE);
@@ -32,6 +36,9 @@ int main(int argc, char *argv[])
 
 	while(1){
 		ret = server_accept(listen_fd, &connfd, &addr, 0);
+        if( ret == 0){
+            continue;
+        }
         if( ret < 0){
             exit(EXIT_FAILURE);
         }
@@ -42,7 +49,7 @@ int main(int argc, char *argv[])
         }else if(pid > 0){
             close(connfd);
         }else{
-            
+            printf("let's do something\n");
         }
 	}
 	
