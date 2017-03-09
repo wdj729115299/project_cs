@@ -11,9 +11,7 @@ static int recvn(int sd, void *buf, size_t count)
     int left = count;
     char *ptr = (char *)buf;
     while(left > 0){
-        printf("hi,stuck-1.\n");
         int n = recv(sd, ptr, left, 0);
-        printf("hi,stuck.\n");
         if( n < 0 ){
             if(errno == EINTR){
                 printf("recvn eintr.\n");
@@ -21,10 +19,8 @@ static int recvn(int sd, void *buf, size_t count)
             }
             return -1;
         }else if( n == 0 ){     //EOF
-            printf("hi,stuck2.\n");
             return count -left;
         }else{
-            printf("hi,stuck3.\n");
             left -= n;
             ptr += n;
         }

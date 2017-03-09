@@ -77,6 +77,8 @@ void *ftp_main_loop(void *arg)
            }
            fclose(fp);
            close(client_sd);
+        }else{
+           close(client_sd);
         }
     }
 }

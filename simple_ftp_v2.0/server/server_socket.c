@@ -48,13 +48,28 @@ int server_socket_init(const char *listen_address, unsigned short listen_port, i
 	return 0;
 }
 
-int accept_timeout(int fd, struct sockaddr_in *addr, int timeout)
+int accept_timeout(int fd, struct sockaddr_in *addr, int wait_seconds)
 {
 	int ret;
 	sockaddr_t addr_len = sizeof(struct sockaddr_in);
 
-	if( timeout > 0 ){
-		
+	if( wait_seconds > 0 ){
+		fd_set accept_fdset;
+        struct timeval timeout;
+        FD_ZERO(&accept_fdset);
+        FD_SET(fd, &accept_fdset);
+        timeout.tv_sec = wait_seconds;
+        timeout.tv_usec = 0;
+
+        do{
+            ret = select(fd + 1, &accept_fdset, NULL, NULL, &timeout);
+        }while(ret < 0 && errno == EINTR )
+        if( ret < 0 ){
+            return -1;
+        }
+        if( ret == 0){
+            return -1;
+        }
 	}
 
 	if( addr != NULL){
@@ -76,7 +91,9 @@ int server_accept(int fd, int *connfd, struct sockaddr_in *addr, int timeout)
 	int ret = 0;
 
 	ret = accept_timeout(fd, addr, timeout);
-	if(){
+	if(ret < 0){
+        printf("%s line %d %d:accept_timeout failed\n", __FILE__, __LINE__, __FUNCTION__);
+        return ret;
 	}
 
 	*connfd = ret;
