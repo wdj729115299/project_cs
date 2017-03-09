@@ -10,6 +10,13 @@ void handle_sigchld( int sig )
 	
 }
 
+static void server_conf_init()
+{
+	tunable_listen_address = TUNABLE_LISTEN_ADDRESS;
+	tunable_listen_port = TUNABLE_LISTEN_PORT;
+	
+}
+
 int main(int argc, char *argv[])
 {
 	int listen_fd;
@@ -23,7 +30,7 @@ int main(int argc, char *argv[])
 
 	signal(SIGCHLD, handle_sigchld);
 
-	//server_conf_init();
+	server_conf_init();
 
 	ret = server_socket_init(tunable_listen_address, tunable_listen_port, &listen_fd);
 	if( ret < 0){
