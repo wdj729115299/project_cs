@@ -42,5 +42,5 @@ static inline void hlist_add_after(struct hlist_node *node, struct hlist_node *n
 {
 }
 
-#define hlist_entry
+#define hlist_entry(ptr, type, member)      container_of(ptr, type, member)
 #endif
