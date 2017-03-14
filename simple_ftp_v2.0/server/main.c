@@ -4,6 +4,7 @@
 #include <netinet/in.h>
 #include <string.h>
 #include "tunable.h"
+#include "session.h"
 
 void handle_sigchld( int sig )
 {
@@ -31,6 +32,7 @@ int main(int argc, char *argv[])
 	signal(SIGCHLD, handle_sigchld);
 
 	server_conf_init();
+    server_session_init();
 
 	ret = server_socket_init(tunable_listen_address, tunable_listen_port, &listen_fd);
 	if( ret < 0){
@@ -56,6 +58,7 @@ int main(int argc, char *argv[])
             exit(EXIT_FAILURE);
         }else if(pid > 0){		//父进程返回子进程ID
         	//父进程关闭客户端的socket
+        	session_table_add(&addr, 0);
             close(connfd);
         }else{					//子进程返回0
         	//子进程关闭监听socket
