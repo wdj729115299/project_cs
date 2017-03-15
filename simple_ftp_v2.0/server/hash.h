@@ -1,6 +1,6 @@
 #ifndef _HASH_H
 #define _HASH_H
-
+#include <stddef.h>
 #include "jhash.h"
 
 struct hlist_head
@@ -78,7 +78,7 @@ static inline void hlist_move_list(struct hlist_head *old, struct hlist_head *ne
     old->first = NULL;
 }
 
-#define offsetof(type, member)      ((size_t)&(((type*)0)->member))
+//#define offsetof(type, member)      ((size_t)&(((type*)0)->member))
 
 #define container_of(ptr, type, member)     \
     ((type*)((char *)ptr - offsetof(type, member)))

@@ -56,12 +56,12 @@ int main(int argc, char *argv[])
         if(pid < 0){
             printf("%s line %d %d: fork error\n", __FILE__, __LINE__, __FUNCTION__);
             exit(EXIT_FAILURE);
-        }else if(pid > 0){		//¸¸½ø³Ì·µ»Ø×Ó½ø³ÌID
-        	//¸¸½ø³Ì¹Ø±Õ¿Í»§¶ËµÄsocket
+        }else if(pid > 0){		//çˆ¶è¿›ç¨‹è¿”å›å­è¿›ç¨‹ID
         	session_table_add(&addr, 0);
+			//çˆ¶è¿›ç¨‹å…³é—­è¿æ¥socket
             close(connfd);
-        }else{					//×Ó½ø³Ì·µ»Ø0
-        	//×Ó½ø³Ì¹Ø±Õ¼àÌısocket
+        }else{					//å­è¿›ç¨‹è¿”å›0
+        	//å­è¿›ç¨‹å…³é—­ç›‘å¬socket
             close(listen_fd);
         }
 	}

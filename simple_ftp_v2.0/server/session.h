@@ -20,7 +20,7 @@ typedef struct
 {
     struct hlist_head   head;
     unsigned long       bucket_num;
-    spinlock_t         lock;
+    //spinlock_t         lock;
 }session_bucket_t;
 
 typedef struct
@@ -33,7 +33,7 @@ typedef struct
 #define SESSION_TABLE_NUM   1
 #define SESSION_BUCKET_NUM   65536 + 2
 
-extern void session_table_init();
+extern session_table_t* session_table_init();
 extern void server_session_init();
 extern void session_table_add_entry();
 extern void session_table_add();

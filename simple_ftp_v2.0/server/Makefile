@@ -7,7 +7,7 @@ all:server
 .PHONY:all
 
 target = server
-objects = main.o server_socket.o tunable.o
+objects = main.o server_socket.o tunable.o session.o
 
 
 $(target):$(objects)
