@@ -85,3 +85,31 @@ void session_table_add(struct sockaddr_in *addr, int index)
     
     session_table_add_entry(&flow_info, g_session_table[index]);
 }
+
+void begin_session(int connfd)
+{
+    session_t *session = (session_t *)malloc(sizeof(session_t));
+    if( session == NULL ){
+        printf("%s line %d %d:accept_timeout failed\n", __FILE__, __LINE__, __FUNCTION__);
+        exit(1);
+    }
+
+    priv_sock_init(session);
+    
+    session->ctrl_fd = connfd;
+
+    pid_t pid;
+    pid = fork();
+    if( pid < 0 ){
+        printf("%s line %d %d:fork failed\n", __FILE__, __LINE__, __FUNCTION__);
+        exit(1);
+    }else if( pid == 0 ){
+        /*设置子进程环境*/
+		priv_sock_set_child_context(session);		
+		handle_child(session);
+    }else{
+        /*设置父进程环境*/
+		priv_sock_set_parent_context(session);
+		handle_parent(session);
+    }
+}

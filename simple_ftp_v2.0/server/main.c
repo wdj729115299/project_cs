@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	signal(SIGCHLD, handle_sigchld);
+	signal(SIGCHLD, SIG_IGN);
 
 	server_conf_init();
     server_session_init();
@@ -63,6 +63,11 @@ int main(int argc, char *argv[])
         }else{					//子进程返回0
         	//子进程关闭监听socket
             close(listen_fd);
+
+            //让session中的进程忽略handle_sigchld处理函数
+			signal(SIGCHLD, SIG_IGN);
+            
+            begin_session(connfd);
         }
 	}
 	
