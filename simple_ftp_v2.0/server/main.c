@@ -6,11 +6,6 @@
 #include "tunable.h"
 #include "session.h"
 
-void handle_sigchld( int sig )
-{
-	
-}
-
 static void server_conf_init()
 {
 	tunable_listen_address = TUNABLE_LISTEN_ADDRESS;
