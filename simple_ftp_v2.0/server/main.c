@@ -10,6 +10,7 @@ static void server_conf_init()
 {
 	tunable_listen_address = TUNABLE_LISTEN_ADDRESS;
 	tunable_listen_port = TUNABLE_LISTEN_PORT;
+    tunable_idle_session_timeout = TUNABLE_IDLE_SESSION_TIMEOUT;
 	
 }
 
