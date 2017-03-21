@@ -71,7 +71,7 @@ void priv_sock_send_result(int fd, char res)
 /*发送文件描述符*/
 void priv_sock_send_fd(int sock_fd, int fd)
 {
-	send_fd(sock_fd, fd);
+	//send_fd(sock_fd, fd);
 }
 
 /*接收一个整数*/

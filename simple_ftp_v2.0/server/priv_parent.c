@@ -1,3 +1,12 @@
+#include <linux/capability.h>
+#include <string.h>
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <pwd.h>
+#include <unistd.h>
+#include "priv_parent.h"
+#include "sockutil.h"
+
 int minimize_privilege()
 {
 	/*设置权限 让nobody进程可以绑定20端口*/
@@ -61,6 +70,18 @@ static void privop_pasv_get_data_sock(session_t *sess)
 	priv_sock_send_fd(sess->parent_fd, data_sockfd);
 
 	close(data_sockfd);
+}
+
+static void privop_pasv_active(session_t *session)
+{
+}
+
+static void privop_pasv_listen(session_t *session)
+{
+}
+
+static void privop_pasv_accept(session_t *session)
+{
 }
 
 void handle_parent(session_t *session)

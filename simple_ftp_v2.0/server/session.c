@@ -67,6 +67,7 @@ void session_table_add_entry(session_flow_info_t *flow_info, session_table_t *se
         printf("%s line %d %d: malloc failed\n", __FILE__, __LINE__, __FUNCTION__);
         //spin_unlock(&bucket->lock);
     }
+    memset(new_entry, 0, sizeof(session_entry_t));
     memcpy(&new_entry->tuple, flow_info, sizeof(session_flow_info_t));
     INIT_HLIST_NODE(&new_entry->node);
     hlist_add_head(&new_entry->node, &bucket->head);

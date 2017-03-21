@@ -1,3 +1,5 @@
+#include "sockutil.h"
+
 /**
  * writen - 发送固定字节数
  * @fd: 文件描述符
@@ -139,19 +141,19 @@ ssize_t readline(int sockfd, void *buf, size_t maxline)
 			{
 				ret = readn(sockfd, bufp, i+1);
 				if (ret != i+1)
-					exit(EXIT_FAILURE);
+					ERR_EXIT("readn failed\n");
 
 				return ret;
 			}
 		}
 
 		if (nread > nleft)
-			exit(EXIT_FAILURE);
+			ERR_EXIT("nread > nleft\n");
 
 		nleft -= nread;
 		ret = readn(sockfd, bufp, nread);
 		if (ret != nread)
-			exit(EXIT_FAILURE);
+			ERR_EXIT("ret != nread");
 
 		bufp += nread;
 	}
@@ -165,7 +167,7 @@ int tcp_client(const char *address, unsigned short port)
 	sock = socket(PF_INET, SOCK_STREAM, 0);
 	if (sock < 0)
 	{
-		ERR_EXIT("tcp_client");
+		exit(1);
 	}
 
 	if (port > 0)
@@ -192,6 +194,16 @@ int tcp_client(const char *address, unsigned short port)
 	}
 	
 	return sock;
+}
+
+int activate_nonblock(int fd)
+{
+    return 0;
+}
+
+int deactivate_nonblock(int fd)
+{
+    return 0;
 }
 
 /*

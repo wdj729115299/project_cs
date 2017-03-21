@@ -1,15 +1,17 @@
+#include "str.h"
+
 void str_trim_crlf( char *str )
 {
-    char *p = &str[ strlen(str) - 1 ]
+    char *p = &str[ strlen(str) - 1 ];
     while( *p == '\r' || *p == '\n'){
-        *p = '\0'
+        *p = '\0';
         p--;
     }
 }
 
 void str_split(const char *str, char *left, char *right, char limit)
 {
-    char *p = strstr(str, limit);
+    char *p = strrchr(str, limit);
     if( p == NULL ){
         strcpy(left, str);
     }else{
@@ -18,7 +20,7 @@ void str_split(const char *str, char *left, char *right, char limit)
     }
 }
 
-void str_uppper( char *str)
+void str_upper( char *str)
 {
     char *p = str;
     while( *p != '\0'){

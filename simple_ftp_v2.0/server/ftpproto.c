@@ -1,5 +1,12 @@
+#include <stdlib.h>
+#include <sys/socket.h>
+#include <signal.h>
+#include <stdio.h>
+#include <string.h>
 #include "session.h"
+#include "tunable.h"
 #include "ftpproto.h"
+#include "sockutil.h"
 
 static void do_user(session_t *session)
 {
@@ -53,7 +60,7 @@ void start_cmdio_alarm()
 void handle_child(session_t *session)
 {
     int ret = 0, i, size;
-    ftp_reply(session->ctrl_fd, FTP_GREET, "( tinyftpd 1.0 )");
+    ftp_reply(session, FTP_GREET, "( tinyftpd 1.0 )");
 
     while(1){
         memset(session->cmdline, 0, sizeof(session->cmdline));
@@ -62,18 +69,19 @@ void handle_child(session_t *session)
 
         p_sess = session;
         start_cmdio_alarm();
-
         ret = readline(session->ctrl_fd, (void *)session->cmdline, sizeof(session->cmdline));
         if( ret <= 0){
-            exit(1);
+            ERR_EXIT("read cmd failed\n");
         }
 
         //去除\r\n
-        str_trim_crlf(session->cmdline)
+        str_trim_crlf(session->cmdline);
         //解析FTP命令和参数
 		str_split(session->cmdline, session->cmd, session->arg, ' ');
         //将命令转换为大写
 		str_upper(session->cmd);
+
+        printf("cmd:%s\n", session->cmd);
 
         size = sizeof(ctrl_cmds)/sizeof(ctrl_cmds[0]);
         for( i = 0; i < size; i++){

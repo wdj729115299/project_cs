@@ -3,3 +3,4 @@
 const char *tunable_listen_address;
 unsigned short tunable_listen_port;
 unsigned int tunable_idle_session_timeout;
+unsigned int 	tunable_connect_timeout;

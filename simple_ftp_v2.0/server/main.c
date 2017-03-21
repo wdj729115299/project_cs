@@ -11,7 +11,7 @@ static void server_conf_init()
 	tunable_listen_address = TUNABLE_LISTEN_ADDRESS;
 	tunable_listen_port = TUNABLE_LISTEN_PORT;
     tunable_idle_session_timeout = TUNABLE_IDLE_SESSION_TIMEOUT;
-	
+    tunable_connect_timeout = TUNABLE_CONNECT_TIMEOUT;
 }
 
 int main(int argc, char *argv[])
@@ -40,14 +40,14 @@ int main(int argc, char *argv[])
 	struct sockaddr_in addr;
 
 	while(1){
-		ret = server_accept(listen_fd, &connfd, &addr, 0);
+		ret = server_accept(listen_fd, &connfd, &addr, 30);
         if( ret == 0){
             continue;
         }
         if( ret < 0){
             exit(EXIT_FAILURE);
         }
-		printf("accept something.\n");
+
         pid = fork();
         if(pid < 0){
             printf("%s line %d %d: fork error\n", __FILE__, __LINE__, __FUNCTION__);

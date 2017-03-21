@@ -7,7 +7,7 @@ all:server
 .PHONY:all
 
 target = server
-objects = main.o server_socket.o tunable.o session.o ftpproto.o priv_sock.o
+objects = main.o server_socket.o tunable.o session.o ftpproto.o priv_sock.o priv_parent.o sockutil.o str.o
 
 
 $(target):$(objects)
