@@ -8,6 +8,13 @@
 #include "ftpproto.h"
 #include "sockutil.h"
 
+void ftp_reply(session_t *sess, int status, const char *text)
+{
+	char buf[1024] = {0};
+	sprintf(buf, "%d %s\r\n", status, text);
+	writen(sess->ctrl_fd, buf, strlen(buf));
+}
+
 static void do_user(session_t *session)
 {
 }
@@ -20,11 +27,9 @@ static void do_retr(session_t *session)
 {
 }
 
-void ftp_reply(session_t *sess, int status, const char *text)
+static void do_auth(session_t *session)
 {
-	char buf[1024] = {0};
-	sprintf(buf, "%d %s\r\n", status, text);
-	writen(sess->ctrl_fd, buf, strlen(buf));
+    ftp_reply(session, FTP_AUTHOK, "Proceed with negotiation.");
 }
 
 static ftpcmd_t ctrl_cmds[] = {
@@ -33,6 +38,7 @@ static ftpcmd_t ctrl_cmds[] = {
 
     /*传输参数命令*/
     {"PORT",  do_port },
+    {"AUTH",  do_auth },
 
     /*服务命令*/
 	{"RETR",  do_retr },
@@ -81,10 +87,9 @@ void handle_child(session_t *session)
         //将命令转换为大写
 		str_upper(session->cmd);
 
-        printf("cmd:%s\n", session->cmd);
-
         size = sizeof(ctrl_cmds)/sizeof(ctrl_cmds[0]);
         for( i = 0; i < size; i++){
+            printf("ctrl:%s, sesson:%s\n", ctrl_cmds[i].cmd, session->cmd);
             if( strcmp(ctrl_cmds[i].cmd, session->cmd) == 0 ){
                 if( ctrl_cmds[i].cmd_handler != NULL ){
                     ctrl_cmds[i].cmd_handler(session);
@@ -92,8 +97,8 @@ void handle_child(session_t *session)
                     /*未实现命令*/
 					ftp_reply(session, FTP_COMMANDNOTIMPL, "Uncompletement command");	
                 }
+                break;
             }
-            break;
         }
         if (i == size)
 		{
